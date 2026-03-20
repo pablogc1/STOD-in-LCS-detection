@@ -1,0 +1,111 @@
+# ----------------------------------
+# DOUBLE GYRE CONFIG (Generic Pipeline)
+# ----------------------------------
+
+# The pipeline will dynamically import this module:
+system_module: "systems.doublegyre"
+
+# Section 1: Physics Parameters
+# u(x,y,t) = -π A sin(π f) cos(π y)
+# v(x,y,t) =  π A cos(π f) sin(π y) * (2 a x + b)
+# with a(t) = ε sin(ω t), b(t) = 1 - 2 a(t), f(x,t) = a x^2 + b x
+physics_params:
+  A: 0.1
+  epsilon: 0.25
+  omega: 0.6283185307179586   # 2π/10
+
+# Section 2: Grid & State Space Definition (2D grid in x–y)
+grid_params:
+  grid_resolution_x: 2000
+  grid_resolution_y: 1000
+  x_min: 0.0
+  x_max: 2.0
+  y_min: 0.0
+  y_max: 1.0
+
+# Section 3: Time Parameters
+time_params:
+  total_integration_time_end: 15.0
+  time_step_dt: 0.001
+  snapshot_times: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0]
+
+# Section 4: HPC Execution Parameters
+hpc_params:
+  max_desired_jobs: 75
+  num_cores_per_job_generate: 8
+  num_cores_per_job_worker: 8
+  task_chunk_size: 10
+
+# Section 5: Directory & Naming Structure
+output_base_folder: "doublegyre_hpc_output"
+slurm_log_folder: "slurm_logs_doublegyre"
+master_task_list_filename: "master_task_list_doublegyre.txt"
+
+# Section 6: Field Mode
+# Options: "standard", "orthogonal", "both"
+# - standard: Use the original vector field (default)
+# - orthogonal: Use the orthogonal vector field (-v, u) for all calculations
+# - both: Run calculations for both standard and orthogonal fields
+field_mode: "standard"
+
+# Field Visualization Parameters
+# This system is NON-AUTONOMOUS: time evolution visualization
+visualization_params:
+  enabled: true
+  stream_density: 2.0       # Higher = denser streamlines
+  grid_resolution: 2000      # Resolution for visualization grid
+  is_autonomous: false      # Time evolution (non-autonomous system)
+
+# Section 7: Holistic Analysis Controls
+# Activate/deactivate any combination of metrics
+analysis_controls:
+  # --- FTLE Options ---
+  compute_ftle_forward: true
+  compute_ftle_backward: true
+  compute_ftle_superimposition: true  # Requires both forward and backward
+  use_variational_ftle: true  # false = finite-diff (faster), true = variational (slower but more accurate)
+  
+  # --- Lagrangian Betweenness (using FTLE) ---
+  compute_lb: true
+  lb_slices: 300  # Number of time slices for the integral
+  
+  # --- Local STOD Options ---
+  compute_local_stod_forward: true
+  compute_local_stod_backward: true
+  compute_local_stod_superimposition: true  # Requires both forward and backward
+  
+  # --- Local FINSTOD Options ---
+  compute_local_finstod_forward: true
+  compute_local_finstod_backward: true
+  compute_local_finstod_superimposition: true  # Requires both forward and backward
+  
+  # --- Global STOD Options ---
+  compute_global_stod_forward: true
+  compute_global_stod_backward: true
+  compute_global_stod_superimposition: true  # Requires both forward and backward
+  
+  # --- Global FINSTOD Options ---
+  compute_global_finstod_forward: true
+  compute_global_finstod_backward: true
+  compute_global_finstod_superimposition: true  # Requires both forward and backward
+  
+  # --- OLB (LB using STOD instead of FTLE) Options ---
+  compute_olb_local_stod: false
+  compute_olb_local_finstod: true
+  compute_olb_global_stod: false
+  compute_olb_global_finstod: false
+  olb_slices: 300  # Number of time slices for OLB integrals
+  
+  # --- FLI (Fast Lyapunov Indicator) Options ---
+  # Uses variational equations for exact tangent space evolution
+  compute_fli_forward: true
+  compute_fli_backward: true
+  compute_fli_superimposition: true  # Requires both forward and backward
+  fli_alpha_rescale: 0.0  # Rescaling factor to prevent overflow (0 = no rescaling)
+  
+  # --- LD (Lagrangian Descriptor) Options ---
+  # Computes integral of p-norm of velocity along trajectories
+  compute_ld_forward: true
+  compute_ld_backward: true
+  compute_ld_superimposition: true  # Requires both forward and backward
+  ld_p_norm: 0.5  # p-norm exponent (0.5 is common, 1.0 = arc length)

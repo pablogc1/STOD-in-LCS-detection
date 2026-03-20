@@ -1,0 +1,112 @@
+# ----------------------------------
+# LiCN ISOMERIZATION CONFIGURATION
+# ----------------------------------
+
+# Dynamically imported system module:
+system_module: "systems.licn"
+
+# Section 1: Physics Parameters
+# Note: Masses and constants are hardcoded in systems/licn.py 
+# to ensure exact match with the "DEFINITIVE SCRIPT".
+physics_params:
+  description: "LiCN 2-DOF Reduced Model"
+
+# Section 2: Grid & State Space Definition (Poincaré Surface of Section)
+# Grid X = Psi (theta) in [0, pi]
+# Grid Y = P_Psi (momentum) in [-40, 40] (approx based on your plot)
+# The 'target_energy_au' is critical for reconstructing the 4D state from the 2D grid.
+grid_params:
+  grid_resolution_x: 1000
+  grid_resolution_y: 1000
+  x_min: 0.0
+  x_max: 3.14159265359  # Pi
+  y_min: -40.0
+  y_max:  40.0
+  # Energy conversion: 4000 cm^-1 to a.u.
+  # 1 Hartree = 219474.63 cm^-1
+  target_energy_au: 0.01822534  # 4000 / 219474.624
+
+# Section 3: Time Parameters
+time_params:
+  # tau = 10^4 a.u. (as per recent LiCN investigations at E = 4000 cm^-1)
+  total_integration_time_end: 10000.0 
+  # IMPORTANT: time_step_dt is the OUTPUT sampling interval for stored trajectories,
+  # NOT the internal integration step (RKF45 uses adaptive stepping internally).
+  # For STOD, we need enough resolution to track grid cell transitions.
+  # With tau=10000, dt=1.0 gives 10001 trajectory points (manageable).
+  # The actual integration uses adaptive steps ~0.001-0.01 internally.
+  time_step_dt: 1.0
+  # Only compute metrics at the final time (no intermediate snapshots)
+  snapshot_times: [0.0, 10000.0]
+
+# Section 4: HPC Execution Parameters
+# Note: CESVIMA MaxSubmitJobsPerAccount limit is ~75 jobs
+hpc_params:
+  max_desired_jobs: 75           # Maximum allowed by CESVIMA
+  num_cores_per_job_generate: 8  # 75 jobs × 8 cores = 600 cores max
+  num_cores_per_job_worker: 8    
+  task_chunk_size: 14            # ~1000 rows / 75 jobs ≈ 14 rows per job
+
+# Section 5: Directory & Naming Structure
+output_base_folder:     "licn_hpc_output"
+slurm_log_folder:       "slurm_logs_licn"
+master_task_list_filename: "master_task_list_licn.txt"
+
+# Field Visualization Parameters
+# Disabled for LiCN: 4D Hamiltonian system on 2D Poincaré section
+# doesn't have a meaningful 2D velocity field to visualize
+visualization_params:
+  enabled: false
+
+# Section 6: Analysis Controls
+analysis_controls:
+  # --- FTLE Options ---
+  compute_ftle_forward: true
+  compute_ftle_backward: true
+  compute_ftle_superimposition: true  # Requires both forward and backward
+  use_variational_ftle: false  # false = finite-diff (faster), true = variational (slower but more accurate)
+  
+  # --- Lagrangian Betweenness (using FTLE) ---
+  compute_lb: true
+  lb_slices: 100  # Number of time slices for the integral (Δt = 100 a.u. for tau=10000)
+  
+  # --- Local STOD Options ---
+  compute_local_stod_forward: false
+  compute_local_stod_backward: false
+  compute_local_stod_superimposition: false  # Requires both forward and backward
+  
+  # --- Local FINSTOD Options ---
+  compute_local_finstod_forward: true
+  compute_local_finstod_backward: true
+  compute_local_finstod_superimposition: true  # Requires both forward and backward
+  
+  # --- Global STOD Options ---
+  compute_global_stod_forward: false
+  compute_global_stod_backward: false
+  compute_global_stod_superimposition: false  # Requires both forward and backward
+  
+  # --- Global FINSTOD Options ---
+  compute_global_finstod_forward: false
+  compute_global_finstod_backward: false
+  compute_global_finstod_superimposition: false  # Requires both forward and backward
+  
+  # --- OLB (LB using STOD instead of FTLE) Options ---
+  compute_olb_local_stod: false
+  compute_olb_local_finstod: true
+  compute_olb_global_stod: false
+  compute_olb_global_finstod: false
+  olb_slices: 100  # Number of time slices for OLB integrals (Δt = 100 a.u. for tau=10000)
+  
+  # --- FLI (Fast Lyapunov Indicator) Options ---
+  # Uses variational equations for exact tangent space evolution
+  compute_fli_forward: true
+  compute_fli_backward: true
+  compute_fli_superimposition: true  # Requires both forward and backward
+  fli_alpha_rescale: 0.0  # Rescaling factor to prevent overflow (0 = no rescaling)
+  
+  # --- LD (Lagrangian Descriptor) Options ---
+  # Computes integral of p-norm of velocity along trajectories
+  compute_ld_forward: true
+  compute_ld_backward: true
+  compute_ld_superimposition: true  # Requires both forward and backward
+  ld_p_norm: 0.5  # p-norm exponent (0.5 is common, 1.0 = arc length)

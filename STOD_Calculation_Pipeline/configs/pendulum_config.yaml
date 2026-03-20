@@ -1,0 +1,112 @@
+# ----------------------------------
+# SIMPLE PENDULUM CONFIG
+# ----------------------------------
+# Phase space: (theta, omega) where theta is angle, omega is angular velocity
+# Dynamics: dtheta/dt = omega, domega/dt = -lambda * sin(theta)
+# Features: separatrix structure, elliptic center at origin, hyperbolic saddle at (±π, 0)
+
+# The pipeline will dynamically import this module:
+system_module: "systems.pendulum"
+
+# Section 1: Physics Parameters
+#   dtheta/dt = omega
+#   domega/dt = -lambda * sin(theta)
+# where lambda = g/L (set to 1 for canonical form)
+physics_params:
+  lambda: 1.0
+
+# Section 2: Grid & State Space Definition (2D grid in theta–omega)
+# Domain spans two full periods to show repeating separatrix structure
+grid_params:
+  grid_resolution_x: 1000
+  grid_resolution_y: 1000
+  x_min: -6.283185307  # -2π
+  x_max:  6.283185307  # +2π
+  y_min: -2.5
+  y_max:  2.5
+
+# Section 3: Time Parameters
+time_params:
+  total_integration_time_end: 20.0
+  time_step_dt: 0.001
+  snapshot_times: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0]
+
+# Section 4: HPC Execution Parameters
+hpc_params:
+  max_desired_jobs: 75
+  num_cores_per_job_generate: 8     # trajectory generation
+  num_cores_per_job_worker: 8       # FTLE/SOD worker
+  task_chunk_size: 10               # rows per task in master list
+
+# Section 5: Directory & Naming Structure
+output_base_folder: "pendulum_hpc_output"
+slurm_log_folder: "slurm_logs_pendulum"
+master_task_list_filename: "master_task_list_pendulum.txt"
+
+# Section 6: Field Mode
+# Options: "standard", "orthogonal", "both"
+# - standard: Use the original vector field (default)
+# - orthogonal: Use the orthogonal vector field (-v, u) for all calculations
+# - both: Run calculations for both standard and orthogonal fields
+field_mode: "standard"
+
+# Field Visualization Parameters
+# This system is AUTONOMOUS: single snapshot visualization
+visualization_params:
+  enabled: true
+  stream_density: 2.0       # Higher = denser streamlines
+  grid_resolution: 200      # Resolution for visualization grid
+  is_autonomous: true       # Single snapshot (autonomous system)
+
+# Section 7: Analysis Controls
+analysis_controls:
+  # --- FTLE Options ---
+  compute_ftle_forward: true
+  compute_ftle_backward: true
+  compute_ftle_superimposition: true  # Requires both forward and backward
+  use_variational_ftle: true  # false = finite-diff (faster), true = variational (slower but more accurate)
+  
+  # --- Lagrangian Betweenness (using FTLE) ---
+  compute_lb: false
+  lb_slices: 300  # Number of time slices for the integral
+  
+  # --- Local STOD Options ---
+  compute_local_stod_forward: true
+  compute_local_stod_backward: true
+  compute_local_stod_superimposition: true  # Requires both forward and backward
+  
+  # --- Local FINSTOD Options ---
+  compute_local_finstod_forward: true
+  compute_local_finstod_backward: true
+  compute_local_finstod_superimposition: true  # Requires both forward and backward
+  
+  # --- Global STOD Options ---
+  compute_global_stod_forward: false
+  compute_global_stod_backward: false
+  compute_global_stod_superimposition: false  # Requires both forward and backward
+  
+  # --- Global FINSTOD Options ---
+  compute_global_finstod_forward: false
+  compute_global_finstod_backward: false
+  compute_global_finstod_superimposition: false  # Requires both forward and backward
+  
+  # --- OLB (LB using STOD instead of FTLE) Options ---
+  compute_olb_local_stod: false
+  compute_olb_local_finstod: false
+  compute_olb_global_stod: false
+  compute_olb_global_finstod: false
+  olb_slices: 300  # Number of time slices for OLB integrals
+  
+  # --- FLI (Fast Lyapunov Indicator) Options ---
+  # Uses variational equations for exact tangent space evolution
+  compute_fli_forward: true
+  compute_fli_backward: true
+  compute_fli_superimposition: true  # Requires both forward and backward
+  fli_alpha_rescale: 0.0  # Rescaling factor to prevent overflow (0 = no rescaling)
+  
+  # --- LD (Lagrangian Descriptor) Options ---
+  # Computes integral of p-norm of velocity along trajectories
+  compute_ld_forward: true
+  compute_ld_backward: true
+  compute_ld_superimposition: true  # Requires both forward and backward
+  ld_p_norm: 0.5  # p-norm exponent (0.5 is common, 1.0 = arc length)

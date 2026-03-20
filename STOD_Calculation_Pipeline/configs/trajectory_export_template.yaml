@@ -1,0 +1,85 @@
+# ==============================================================================
+# TRAJECTORY EXPORT CONFIG TEMPLATE
+# ==============================================================================
+# Use this template to generate trajectory data for visualization/analysis.
+# Copy and modify for your specific system.
+#
+# This config is designed for trajectory export only - not metrics computation.
+# ==============================================================================
+
+# The system to use (choose one):
+#   - systems.hyperbolic_linear    (Linear Saddle)
+#   - systems.nonlinear_saddle     (Nonlinear Saddle)
+#   - systems.double_gyre          (Double Gyre)
+#   - systems.duffing              (Duffing Oscillator)
+#   - systems.lorenz_poincare      (Lorenz Poincaré Section)
+#   - systems.licn                 (LiCN Molecular)
+system_module: "systems.hyperbolic_linear"
+
+# Physics parameters (system-specific)
+physics_params:
+  alpha: 0.5  # For Linear Saddle: dx/dt = +αx, dy/dt = -αy
+
+# Grid Configuration
+# Tip: For symmetric domains, use odd grid sizes to include origin on axes
+grid_params:
+  grid_resolution_x: 101   # Use 101 to include x=0 exactly
+  grid_resolution_y: 101   # Use 101 to include y=0 exactly
+  x_min: -1.0
+  x_max:  1.0
+  y_min: -1.0
+  y_max:  1.0
+
+# Time Configuration
+time_params:
+  total_integration_time_end: 10.0   # Integrate from 0 to 10
+  time_step_dt: 0.1                  # Record every 0.1 time units
+  # snapshot_times not needed for trajectory export
+
+# HPC Parameters (adjust based on grid size and cluster)
+hpc_params:
+  max_desired_jobs: 10       # For 101x101, 10 jobs = ~10 rows each
+  num_cores_per_job_generate: 4
+  num_cores_per_job_worker: 4
+  task_chunk_size: 10
+
+# Output Directories
+output_base_folder: "trajectory_export_output"
+slurm_log_folder: "slurm_logs_trajectory_export"
+master_task_list_filename: "master_task_list_trajectory_export.txt"
+
+# Field Mode: "standard", "orthogonal", or "both"
+field_mode: "standard"
+
+# Visualization (not used for trajectory export, but required by pipeline)
+visualization_params:
+  enabled: false
+
+# Analysis Controls - MINIMAL for trajectory export
+# We just need trajectories, not metrics
+analysis_controls:
+  # Enable both directions for complete trajectories
+  enable_forward: true
+  enable_backward: true
+  
+  # Disable all metrics (we only want trajectories)
+  compute_ftle_forward: false
+  compute_ftle_backward: false
+  compute_local_stod_forward: false
+  compute_local_stod_backward: false
+  compute_local_finstod_forward: false
+  compute_local_finstod_backward: false
+  compute_global_stod_forward: false
+  compute_global_stod_backward: false
+  compute_global_finstod_forward: false
+  compute_global_finstod_backward: false
+  compute_lb: false
+  compute_olb_local_stod: false
+  compute_olb_local_finstod: false
+  compute_olb_global_stod: false
+  compute_olb_global_finstod: false
+  compute_fli_forward: false
+  compute_fli_backward: false
+  compute_ld_forward: false
+  compute_ld_backward: false
+
