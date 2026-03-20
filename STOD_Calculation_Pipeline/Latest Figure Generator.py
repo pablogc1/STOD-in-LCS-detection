@@ -409,7 +409,7 @@ def process_videos():
                 # Pendulum comparison is 2x2 (FTLE, FLI, LD, FinSTOD)
                 # All raw, but FinSTOD in log
                 fig_c, axs_c = fix_fig_for_video(2, 2, skey, base_size=5)
-                with writer.saving(fig_c, os.path.join(OUTPUT_DIR, f"{skey}_{direction}_Comparison.mp4"), dpi=150):
+                with writer.saving(fig_c, os.path.join(OUTPUT_DIR, f"{prefix_order}_{skey}_{direction}_Comparison.mp4"), dpi=150):
                     for t, tau in snaps:
                         for idx, (m, lbl) in enumerate([("ftle","FTLE"), ("fli","FLI"), ("ld","LD"), ("finstod","FinSTOD")]):
                             ax = axs_c.flatten()[idx]; ax.clear()
@@ -429,7 +429,7 @@ def process_videos():
                 # Nonlinear comparison is 2x2 (FTLE, FLI, LD, FinSTOD)
                 # Standard metrics in log, FinSTOD in raw
                 fig_c, axs_c = fix_fig_for_video(2, 2, skey, base_size=5)
-                with writer.saving(fig_c, os.path.join(OUTPUT_DIR, f"{skey}_{direction}_Comparison.mp4"), dpi=150):
+                with writer.saving(fig_c, os.path.join(OUTPUT_DIR, f"{prefix_order}_{skey}_{direction}_Comparison.mp4"), dpi=150):
                     for t, tau in snaps:
                         for idx, (m, lbl) in enumerate([("ftle","FTLE"), ("fli","FLI"), ("ld","LD"), ("finstod","FinSTOD")]):
                             ax = axs_c.flatten()[idx]; ax.clear()
@@ -449,7 +449,7 @@ def process_videos():
                 # Other systems use 2x2 layout (FTLE, FLI, LD, FinSTOD)
                 # Standard metrics raw, FinSTOD log
                 fig_c, axs_c = fix_fig_for_video(2, 2, skey, base_size=5)
-                with writer.saving(fig_c, os.path.join(OUTPUT_DIR, f"{skey}_{direction}_Comparison.mp4"), dpi=150):
+                with writer.saving(fig_c, os.path.join(OUTPUT_DIR, f"{prefix_order}_{skey}_{direction}_Comparison.mp4"), dpi=150):
                     for t, tau in snaps:
                         for idx, (m, lbl) in enumerate([("ftle","FTLE"), ("fli","FLI"), ("ld","LD"), ("finstod","FinSTOD")]):
                             ax = axs_c.flatten()[idx]; ax.clear()
