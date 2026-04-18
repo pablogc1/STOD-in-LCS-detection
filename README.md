@@ -1,6 +1,6 @@
 # Strong Trajectorial Ontological Differentiation (STOD) - Official Repository
 
-This repository contains the source code, configuration files, and complete visual results for the framework introduced in the paper: **"Strong Trajectorial Ontological Differentiation: A path-based approach for revealing Lagrangian coherent structures"**.
+This repository contains the source code, configuration files, and complete visual results for the framework introduced in the paper: **"Strong Trajectorial Ontological Differentiation: A novel approach to unravel phase-space structures"**.
 
 ## Overview
 
